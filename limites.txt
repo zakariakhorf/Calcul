@@ -1,0 +1,11 @@
+Bonjour
+les limites de mon projet sont (que j'ai trouvé):
+
+pas d'afficahge des messages d'erreurs.
+
+une seule forme de concatenation est acceptée ( @t1 ^ @t2   t1 et t2 deja déclarés).
+
+lors du click de CTRl+D aucun message n'est affiché 
+
+
+la commande "print" doit etre precedée par "." (confusion entre declaration variable et commande puisque la variable peut porter n'importe quel nom)

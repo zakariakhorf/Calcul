@@ -1,0 +1,176 @@
+// Specification JCup
+import java.util.HashMap; 
+import java_cup.runtime.*;
+import java.lang.*;
+
+parser code {:
+	public static void main(String args[]) throws Exception {
+		new parser(new Yylex(System.in)).parse();
+	}
+:}
+action code {:
+ String tab ="";
+ HashMap<String, String> ARRAYVAR = new HashMap<String, String>();
+ String motcle="";
+ Integer util = 0;
+:}
+non terminal Integer EXPRESSION;
+non terminal axiome;
+non terminal tablecom;
+terminal String MULTIPLYTIPLY;
+terminal String DIVISION;
+terminal Integer NOMBRE;
+terminal String ID;
+terminal String EGAL;
+terminal String MINUS;
+terminal String ATT;
+terminal String CLEAR;
+terminal String print;
+terminal String VIR;
+terminal String ACCOLADEOPEN;
+terminal String ACCOLADECLOSE;
+terminal String AJOUT;
+terminal String SOMMENB;
+terminal String  CON ;
+terminal String PARENTHESEOUV;
+terminal String PARENTHESEFERM;
+
+
+
+precedence left ACCOLADEOPEN;
+precedence left CON;
+precedence left AJOUT, MINUS;
+precedence left MULTIPLYTIPLY, DIVISION;
+precedence left VIR;
+
+axiome ::= ID:i {: motcle = i ; :}  EGAL  EXPRESSION:e {: 
+
+ARRAYVAR.put(motcle , ""+e) ;
+System.out.println("entier "+motcle + "= " +e);
+          :} axiome   {:   
+		 
+		   :}   // initialisation avec identificateur
+
+|  CLEAR  {: 
+    if (motcle != "" && tab!=""){
+    String f ="";
+	String tabfianl ="";
+	for (char ch: tab.toCharArray() ){
+	f = ch +f ;
+	if(ch==',' ){
+		String kk =new StringBuilder(f).reverse().toString();
+		tabfianl= kk + tabfianl ;
+		f="";
+	}
+	if(ch==tab.charAt(tab.length() - 1))
+	{ 	String kk =new StringBuilder(f).reverse().toString();
+		tabfianl= kk+"," + tabfianl ;
+		f="";}
+}
+    tabfianl = "{"+ tabfianl.substring(0, tabfianl.length() - 1) +"}" ;
+    ARRAYVAR.put(motcle , tabfianl) ;
+	System.out.println("tab "+motcle + "= " +tabfianl);
+    tab="";
+	motcle="";}
+
+
+	 :} axiome    
+
+
+
+| EXPRESSION:e axiome:ex 
+
+
+|ACCOLADEOPEN tablecom ACCOLADECLOSE axiome {:
+      // String f =new StringBuilder("}"+tab+"{").reverse().toString();  // initialisation tab sans identificateur
+  :}
+  
+  
+  
+| ATT:a {:motcle = a ;:} EGAL ACCOLADEOPEN tablecom:t ACCOLADECLOSE axiome 
+
+
+ 
+ 
+ | ATT:t1 CON ATT:t2 axiome {:
+ 
+String k1 = t1.substring(1);
+String k2 = t2.substring(1);
+String c1 =ARRAYVAR.get(t1);
+String c2 =ARRAYVAR.get(t2);
+String cc = c1.substring(0, c1.length() - 1) +","+ c2.substring(1);
+System.out.println("le resultat de la concatenation est "+cc ) ;
+ :}
+
+
+        
+
+| | print {: 	System.out.println("les ARRAYVAR declarées sont"+ ARRAYVAR  ) ;   :} axiome ;
+	
+
+
+tablecom ::= EXPRESSION:e1 VIR:v tablecom  
+                   {:tab+=",";tab += e1;   :} |  
+        EXPRESSION:e2  {:
+	        tab += e2 ; 
+
+
+:}  ;
+
+EXPRESSION ::= EXPRESSION:e1 AJOUT EXPRESSION:e2 {:
+
+	RESULT = e1+e2;
+	
+:} | EXPRESSION:e1 MINUS EXPRESSION:e2 {:
+	
+	RESULT = e1-e2;
+	
+:} | EXPRESSION:e1 MULTIPLY EXPRESSION:e2 {:
+
+	RESULT = e1*e2;
+	
+:} | EXPRESSION:e1 DIVISION EXPRESSION:e2 {:
+
+	RESULT = e1/e2;
+	
+:} | PARENTHESEOUV EXPRESSION:e PARENTHESEFERM {:
+	
+	RESULT = (e);
+:} 
+
+   | NOMBRE:n {:
+
+	RESULT = n;
+	
+:} | SOMMENB:snb {:
+    int i =0;
+	String rr="";
+	String r ="";
+	String util = snb.substring(snb.indexOf("@")+1, snb.indexOf("["));
+
+	String index = snb.substring(snb.indexOf("[")+1, snb.indexOf("]"));
+
+	int indexint = Integer.valueOf(index);
+
+	String c =ARRAYVAR.get("@"+util);
+	for (char ch: c.toCharArray()) {
+	if(ch!='{' && ch!='}' && ch!=',' ){r+=ch;}
+	if(ch==','){i++;}
+	if(i!=indexint){r="";}	
+	if(i==indexint){rr =r ;}
+}
+	RESULT =  Integer.parseInt(rr);
+	
+:}| ID:id {:
+       String c =ARRAYVAR.get(id);
+	   RESULT =  Integer.parseInt(c);
+
+:};
+
+
+
+
+
+
+
+
